@@ -1,0 +1,21 @@
+
+<div id="target">This demo shows the use of a delayed animation changing the color and backgroundColor atributes</div>
+<br />
+<button onClick="animation.play();">play</button>
+    <button onClick="animation.pause();">pause</button>
+    <button onClick="animation.cancel();">cancel</button>
+    <button onClick="animation.finish();">finish</button>
+<script>
+    //buttons can not see const or let vars defined here because the playarea evaluates them in a non global scope;
+    animation = document.getElementById("target").AnimatorJS()
+        .color("red")
+        .backgroundColor("blue")
+        .next()
+        .color("blue")
+        .backgroundColor("red")
+        .next()
+        .color("red")
+        .backgroundColor("blue")
+        .repeat(Infinity)
+        .render();
+</script>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>colors!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <a href="../index.html">back</a>
+    <hr />
+    <button onClick="run();">run</button>
+    <br />
+    <textarea id="code" style="width:50%;min-height: -webkit-fill-available;resize: vertical;">
+
+        </textarea>
+    <iframe id="container" src="./playarea.html" style="width:40%;height:90%;position: absolute;top:5em;left:calc(50%+20px);"></iframe>
+    <script>
+        document.getElementById("container").addEventListener("load", function () {
+            document.getElementById("container").contentDocument.body.innerHTML = document.getElementById(
+                "code").value;
+            document.getElementById("container").contentWindow.__make();
+        });
+
+        function run() {
+            document.getElementById("container").src = document.getElementById("container").src;
+        }
+        fetch("./playground.default.txt").then(res => res.text()).then(text => document.getElementById("code").value =
+            text);
+    </script>
+</body>
+
+</html>

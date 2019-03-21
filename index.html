@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AnimatorJS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./lib/AnimatorJS.js"></script>
+    <!-- <script src="main.js"></script> -->
+</head>
+
+<body>
+    <h1 id="name">AnimatorJS</h1>
+    <div id="content">
+        <h3>demo's</h3>
+        <a href="./examples/color_delayed.html">colors (delayed)</a>
+        <br />
+        <a href="./examples/color.html">colors</a>
+        <br />
+        <h3>playground</h3>
+        <a href="./playground/playground.html">playground</a>
+    </div>
+    <script>
+        let contentanimation = document.getElementById("content").AnimatorJS().opacity(0).next().opacity(1).start(1000);
+        contentanimation.pause();
+        let animation = AnimatorJS()
+            .color("transparent")
+            .transform(500, 0)
+            .easing("ease-out")
+            .fontSize("0px")
+            .next()
+            .color("black")
+            .transform(0, 0)
+            .fontSize("32px")
+            .render(2000);
+        let instance = animation.assign(document.getElementById("name"));
+        instance.onfinish = () => {
+            contentanimation.play();
+        }
+        instance.play();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>colors!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./../lib/AnimatorJS.js"></script>
+</head>
+
+<body>
+    <a href="./../index.html">back</a>
+    <br />
+    <div id="target">This demo shows the use of a delayed animation bound to an element that changing the color and
+        backgroundColor atributes</div>
+    <br />
+    <button onClick="bounddelayedanimation.play();">play</button>
+    <button onClick="bounddelayedanimation.pause();">pause</button>
+    <button onClick="bounddelayedanimation.cancel();">cancel</button>
+    <button onClick="bounddelayedanimation.finish();">finish</button>
+    <script>
+        let delayedanimationholder = AnimatorJS()
+            .color("red")
+            .backgroundColor("blue")
+            .next()
+            .color("blue")
+            .backgroundColor("red")
+            .next()
+            .color("red")
+            .backgroundColor("blue")
+            .repeat(10)
+            .render();
+        let bounddelayedanimation = delayedanimationholder.assign(document.getElementById("target"));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "animatorjs",
+  "version": "1.0.0",
+  "description": "a wrapper around the new web-animation-api",
+  "main": "lib/AnimatorJS.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ian Senne",
+  "license": "ISC"
+}
