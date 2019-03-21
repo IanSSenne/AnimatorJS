@@ -4,8 +4,17 @@
   "description": "a wrapper around the new web-animation-api",
   "main": "lib/AnimatorJS.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
   },
   "author": "Ian Senne",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@node-minify/core": "^4.0.5",
+    "@node-minify/uglify-es": "^4.0.5"
+  },
+  "repository": {
+    "url": "https://github.com/IanSSenne/AnimatorJS.git",
+    "type": "github"
+  }
 }
