@@ -3,7 +3,7 @@ const ujs = require("@node-minify/uglify-es");
 
 minify({
     compressor: ujs,
-    input: './src/*.js',
+    input: './src/AnimatorJS.js',
     output: './build/AnimatorJS.min.js',
     options: {
         mangle: true,
@@ -13,27 +13,31 @@ minify({
         },
         compress: true,
         compress: {
-            inline: 3
+            inline: 3,
+            drop_console: true
         }
     },
     callback: function (err, min) {
-        console.log("uglify-es DONE", err, min.length);
+        console.log("uglify-es DONE", err);
     }
-}).catch(e => console.log("ERROR", e))
+}).catch(e => console.log("ERROR", e));
 minify({
     compressor: ujs,
-    input: './src/*.js',
-    output: './build/AnimatorJS.js',
+    input: './src/AnimatorJS.dom.js',
+    output: './build/AnimatorJS.dom.min.js',
     options: {
-        mangle: false,
+        mangle: true,
         output: {
             ast: true,
-            ecma: 5,
-            beautify: true,
-            comments: "all"
+            ecma: 6
+        },
+        compress: true,
+        compress: {
+            inline: 3,
+            drop_console: true
         }
     },
     callback: function (err, min) {
-        console.log("uglify-es DONE pretty", err, min.length);
+        console.log("uglify-es DONE", err);
     }
-}).catch(e => console.log("ERROR", e))
+}).catch(e => console.log("ERROR", e));

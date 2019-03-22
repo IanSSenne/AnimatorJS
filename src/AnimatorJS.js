@@ -376,6 +376,28 @@ AnimatorJS = (function () {
         animationInstance.bind(type, func);
         return animationInstance;
     }
+    AnimatorJS.prototype.css = function (string) {
+        let parts = string.split(";");
+        for (let part of parts) {
+            let name = part.split(":", 2)[0];
+            let value = part.split(":", 2)[1];
+            if (name != "") this.set(name, value.trim());
+        }
+        return this;
+    }
+    AnimatorJS.prototype.raw = function (object) {
+        let keys = Object.keys(object);
+        for (let i = 0; i < keys.length; i++) {
+            this.set(keys[i], object[keys[i]]);
+        }
+        return this;
+    }
+    AnimatorJS.prototype.append = function (Animator) {
+        for (let i = 0; i < Animator.Animation.length; i++) {
+            this.Animation.push(Animator.Animation[i]);
+        }
+        return this;
+    }
 
     /*-----------------------------------------------------------------------------*\
     Extend the Element prototype so that you can do Element.AnimatorJS to animate that element.
