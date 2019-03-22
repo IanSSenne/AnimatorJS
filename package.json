@@ -2,7 +2,7 @@
   "name": "animatorjs",
   "version": "1.0.0",
   "description": "a wrapper around the new web-animation-api",
-  "main": "lib/AnimatorJS.js",
+  "main": "build/AnimatorJS.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node build.js"
