@@ -114,8 +114,8 @@ AnimatorJS.dom = (function () {
     }
     let _AnimatorJSOption = customElements.define("animatorjs-option", AnimatorJSOption);
     return {
-        AnimatorJSAnimation: _AnimatorJSAnimation,
-        AnimatorJSKeyframe: _AnimatorJSKeyframe,
-        AnimatorJSOption: _AnimatorJSOption
+        AnimatorJSAnimation,
+        AnimatorJSKeyframe,
+        AnimatorJSOption
     }
 })();
