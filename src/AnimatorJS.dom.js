@@ -32,7 +32,6 @@ AnimatorJS.dom = (function () {
             if (this._animation) return this._animation;
             let _children = Array.from(this.children);
             for (let i = 0; i < _children.length; i++) {
-                debugger;
                 console.log(i, _children[i]);
                 this.animator.append(_children[i].get_animation());
             }
