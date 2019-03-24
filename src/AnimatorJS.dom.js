@@ -9,18 +9,10 @@ AnimatorJS.dom = (function () {
             super();
             this.animator = AnimatorJS();
             this.final = {};
-            console.log("create element Animation");
         }
         connectedCallback() {
             this.style.display = "none";
             this.hidden = true;
-        }
-        disconnectedCallback() {
-            console.log("disconnected", this);
-        }
-
-        adoptedCallback() {
-            console.log("adopted", this);
         }
         attributeChangedCallback(name, oldValue, newValue) {
             this.final.duration = +newValue;
@@ -32,13 +24,12 @@ AnimatorJS.dom = (function () {
             if (this._animation) return this._animation;
             let _children = Array.from(this.children);
             for (let i = 0; i < _children.length; i++) {
-                console.log(i, _children[i]);
                 this.animator.append(_children[i].get_animation());
             }
             return this._animation || (this._animation = this.animator.render());
         }
     }
-    let _AnimatorJSAnimation = customElements.define("animatorjs-animation", AnimatorJSAnimation);
+    customElements.define("animatorjs-animation", AnimatorJSAnimation);
     /*-----------------------------------------------------------------------------*\
     AnimatorJSKeyframe implements the AnimatorJS-Keyframe element
     this element acts as a keyframe for the parent <AnimatorJS-Animation> element
@@ -49,15 +40,6 @@ AnimatorJS.dom = (function () {
         constructor() {
             super();
             this._attributes = {};
-            console.log("create element keyframe");
-        }
-        connectedCallback() {}
-        disconnectedCallback() {
-            console.log("disconnected", this);
-        }
-
-        adoptedCallback() {
-            console.log("adopted", this);
         }
         attributeChangedCallback(name, oldValue, newValue) {
             this._attributes[name] = newValue;
@@ -92,7 +74,7 @@ AnimatorJS.dom = (function () {
             return this.animator.next();
         }
     }
-    let _AnimatorJSKeyframe = customElements.define("animatorjs-keyframe", AnimatorJSKeyframe);
+    customElements.define("animatorjs-keyframe", AnimatorJSKeyframe);
     /*-----------------------------------------------------------------------------*\
     AnimatorJSKeyframe implements the AnimatorJS-Option element
     the <AnimatorJS-Option> element is expected to have 2 attributes, name and value
@@ -100,18 +82,9 @@ AnimatorJS.dom = (function () {
     class AnimatorJSOption extends HTMLElement {
         constructor() {
             super();
-            this._attributes = {};
-            console.log("create element option");
-        }
-        attributeChangedCallback(name, oldValue, newValue) {
-            this._attributes[name] = newValue;
-            console.log("attribute", name, "set to", newValue, "on", this);
-        }
-        static get observedAttributes() {
-            return ['*'];
         }
     }
-    let _AnimatorJSOption = customElements.define("animatorjs-option", AnimatorJSOption);
+    customElements.define("animatorjs-option", AnimatorJSOption);
     return {
         AnimatorJSAnimation,
         AnimatorJSKeyframe,

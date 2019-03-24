@@ -9,7 +9,8 @@ minify({
         mangle: true,
         output: {
             ast: true,
-            ecma: 6
+            ecma: 6,
+            max_line_len: 1024
         },
         compress: true,
         compress: {
@@ -29,7 +30,8 @@ minify({
         mangle: true,
         output: {
             ast: true,
-            ecma: 6
+            ecma: 6,
+            max_line_len: 1024
         },
         compress: true,
         compress: {
