@@ -6,19 +6,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>AnimationJS.dom</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="../build/AnimatorJS.min.js"></script>
-    <script src="../build/AnimatorJS.dom.min.js"></script>
-    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css"> -->
+    <script src="/demo_loader.js"></script>
+    <style>
+        tab {
+            margin-left: 4ch;
+        }
+    </style>
 </head>
 
 <body>
     <AnimatorJS-Animation duration=1000 id="test">
-        <AnimatorJS-Keyframe style="position: absolute;top:0px;left:0px;">
-            <AnimatorJS-Option name="duration" value="100"></AnimatorJS-Option>
+        <AnimatorJS-Keyframe style="transform: translateX(0px) translateY(0px);">
+            <AnimatorJS-Option name="backgroundColor" value="red"></AnimatorJS-Option>
+        </AnimatorJS-Keyframe>
+        <AnimatorJS-Keyframe style="transform: translateX(10px) translateY(40px);">
+            <AnimatorJS-Option name="backgroundColor" value="blue"></AnimatorJS-Option>
         </AnimatorJS-Keyframe>
     </AnimatorJS-Animation>
+    <div id=demo_element>
+        &lt;AnimatorJS-Animation duration=1000 id="test"><br />
+        <tab />&lt;AnimatorJS-Keyframe style="transform: translateX(0px) translateY(0px);"><br />
+        <tab />
+        <tab />&lt;AnimatorJS-Option name="backgroundColor" value="blue">&lt;/AnimatorJS-Option><br />
+        <tab />&lt;/AnimatorJS-Keyframe><br />
+        <tab />&lt;AnimatorJS-Keyframe style="transform: translateX(10px) translateY(40px);"><br />
+        <tab />
+        <tab />&lt;AnimatorJS-Option name="backgroundColor" value="red">&lt;/AnimatorJS-Option><br />
+        <tab />&lt;/AnimatorJS-Keyframe><br />
+        &lt;/AnimatorJS-Animation><br />
+    </div>
     <script>
-        console.log(test.animation);
+        function demo() {
+            test.animation.assign(demo_element).play();
+        }
     </script>
 </body>
 

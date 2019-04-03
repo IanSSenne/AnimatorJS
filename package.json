@@ -16,5 +16,8 @@
   "repository": {
     "url": "https://github.com/IanSSenne/AnimatorJS.git",
     "type": "github"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security"
   }
 }

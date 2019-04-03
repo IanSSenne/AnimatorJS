@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>colors!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="../build/AnimatorJS.min.js"></script>
+    <script src="/demo_loader.js"></script>
 </head>
 
 <body>
@@ -20,18 +20,23 @@
     <button onClick="bounddelayedanimation.cancel();">cancel</button>
     <button onClick="bounddelayedanimation.finish();">finish</button>
     <script>
-        let delayedanimationholder = AnimatorJS()
-            .color("red")
-            .backgroundColor("blue")
-            .next()
-            .color("blue")
-            .backgroundColor("red")
-            .next()
-            .color("red")
-            .backgroundColor("blue")
-            .repeat(10)
-            .render();
-        let bounddelayedanimation = delayedanimationholder.assign(document.getElementById("target"));
+        let delayedanimationholder, bounddelayedanimation;
+
+        function demo() {
+            console.log("hi");
+            delayedanimationholder = AnimatorJS()
+                .color("red")
+                .backgroundColor("blue")
+                .next()
+                .color("blue")
+                .backgroundColor("red")
+                .next()
+                .color("red")
+                .backgroundColor("blue")
+                .repeat(10)
+                .render();
+            bounddelayedanimation = delayedanimationholder.assign(document.getElementById("target"));
+        }
     </script>
 </body>
 

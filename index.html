@@ -6,12 +6,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>AnimatorJS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="./build/AnimatorJS.min.js"></script>
+    <script src="./demo_loader.js"></script>
     <!-- <script src="main.js"></script> -->
+    <style>
+        html,
+        body {
+            height: 5000px;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <h1 id="name">AnimatorJS</h1>
+    <!-- <h1 id="name">AnimatorJS</h1>
     <div id="content">
         <h3>demo's</h3>
         <a href="./examples/color_delayed.html">colors (delayed)</a>
@@ -22,25 +32,39 @@
         <br />
         <h3>playground</h3>
         <a href="./playground/playground.html">playground</a>
-    </div>
+    </div> -->
+    <div id="top_bar_fixed"></div>
     <script>
-        let contentanimation = document.getElementById("content").AnimatorJS().opacity(0).next().opacity(1).start(1000);
-        contentanimation.pause();
-        let animation = AnimatorJS()
-            .color("transparent")
-            .transform(500, 0)
-            .easing("ease-out")
-            .fontSize("0px")
-            .next()
-            .color("black")
-            .transform(0, 0)
-            .fontSize("32px")
-            .render(2000);
-        let instance = animation.assign(document.getElementById("name"));
-        instance.onfinish = () => {
-            contentanimation.play();
+        function demo() {
+            let top_bar_fixed = document.querySelector("#top_bar_fixed");
+            top_bar_fixed.AnimatorJS()
+                .position("fixed")
+                .top("0px")
+                .left("0px")
+                .width("0px")
+                .height("10px")
+                .backgroundColor("red")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("0px")
+                .width("50%")
+                .height("10px")
+                .backgroundColor("blue")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("0px")
+                .width("100%")
+                .height("10px")
+                .backgroundColor("red")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999);
+                });
         }
-        instance.play();
     </script>
 </body>
 

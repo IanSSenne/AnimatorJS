@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>colors!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="../build/AnimatorJS.min.js"></script>
+    <script src="/demo_loader.js"></script>
 </head>
 
 <body>
@@ -19,17 +19,21 @@
     <button onClick="animation.cancel();">cancel</button>
     <button onClick="animation.finish();">finish</button>
     <script>
-        let animation = document.getElementById("target").AnimatorJS()
-            .color("red")
-            .backgroundColor("blue")
-            .next()
-            .color("blue")
-            .backgroundColor("red")
-            .next()
-            .color("red")
-            .backgroundColor("blue")
-            .repeat(10)
-            .render();
+        let animation;
+
+        function demo() {
+            animation = document.getElementById("target").AnimatorJS()
+                .color("red")
+                .backgroundColor("blue")
+                .next()
+                .color("blue")
+                .backgroundColor("red")
+                .next()
+                .color("red")
+                .backgroundColor("blue")
+                .repeat(10)
+                .render();
+        }
     </script>
 </body>
 

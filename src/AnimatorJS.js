@@ -1,38 +1,45 @@
-AnimatorJS = (function () {
+this.AnimatorJS = (function () {
     /*-----------------------------------------------------------------------------*\
     POLYFILL :)
     \*-----------------------------------------------------------------------------*/
+    let isUsingPolyfill = false;
     if (!this.document.createElement("div").animate) {
-        let s = document.createElement("script");
+        var s = document.createElement("script");
         s.src = "https://rawgit.com/web-animations/web-animations-js/master/web-animations.min.js";
+        isUsingPolyfill = true;
         if (document.head) {
             document.head.appendChild(s);
         } else {
-            document.addEventListener("load", () => {
+            document.addEventListener("load", function () {
                 document.head.appendChild(s);
-            })
+            });
         }
+    }
+    GlobalAnimatorJS.polyfill = function (state) {
+        if (state) isUsingPolyfill = true;
+        return isUsingPolyfill;
     }
     /*-----------------------------------------------------------------------------*\
     class DelayedAnimationHolder(keyframes)
     allows storing of keyframes and functions to enable playback at a later time;
     and allows asignment to an element;
     \*-----------------------------------------------------------------------------*/
+    const defineProperty = Object.defineProperty;
+
     function DelayedAnimationHolder(keyframes, options) {
         this._options = options;
         this._keyframes = keyframes;
     }
     DelayedAnimationHolder.prototype.assign = function (element) {
         return new DelayedAnimation(this._keyframes, this._options, element);
-    }
+    };
     /*-----------------------------------------------------------------------------*\
     class DelayedAnimation(keyframes,options,element)
     allows storing of keyframes and functions to enable playback at a later time;
     \*-----------------------------------------------------------------------------*/
-
     function DelayedAnimation(keyframes, options, element) {
         this._keyframes = keyframes;
-        this._options = options
+        this._options = options;
         this._element = element;
         this._Animation = null;
         this._currentTime = null; //get-set currentTime
@@ -49,123 +56,131 @@ AnimatorJS = (function () {
         this._bind_isglobal = false;
         //get     pending
     }
-    Object.defineProperty(DelayedAnimation.prototype, 'currentTime', {
-        set(value) {
+
+    function DelayedAnimation_DefineProperty(a, b) {
+        defineProperty(DelayedAnimation.prototype, a, b);
+    }
+    DelayedAnimation_DefineProperty('currentTime', {
+        set: function (value) {
             return this.set('currentTime', value);
         },
-        get() {
+        get: function () {
             return this.get('currentTime');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'effect', {
-        set(value) {
+    DelayedAnimation_DefineProperty('effect', {
+        set: function (value) {
             return this.set('effect', value);
         },
-        get() {
+        get: function () {
             return this.get('effect');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'finished', {
-        get() {
+    DelayedAnimation_DefineProperty('finished', {
+        get: function () {
             return this.get('finished');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'id', {
-        set(value) {
+    DelayedAnimation_DefineProperty('id', {
+        set: function (value) {
             return this.set('id', value);
         },
-        get() {
+        get: function () {
             return this.get('id');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'pending', {
-        get() {
+    DelayedAnimation_DefineProperty('pending', {
+        get: function () {
             return this.get('pending');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'playState', {
-        get() {
+    DelayedAnimation_DefineProperty('playState', {
+        get: function () {
             return this.get('playState');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'playbackRate', {
-        set(value) {
+    DelayedAnimation_DefineProperty('playbackRate', {
+        set: function (value) {
             return this.set('playbackRate', value);
         },
-        get() {
+        get: function () {
             return this.get('playbackRate');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'ready', {
-        get() {
+    DelayedAnimation_DefineProperty('ready', {
+        get: function () {
             return this.get('ready');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'startTime', {
-        set(value) {
+    DelayedAnimation_DefineProperty('startTime', {
+        set: function (value) {
             return this.set('startTime', value);
         },
-        get() {
+        get: function () {
             return this.get('startTime');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'timeline', {
-        set(value) {
+    DelayedAnimation_DefineProperty('timeline', {
+        set: function (value) {
             return this.set('timeline', value);
         },
-        get() {
+        get: function () {
             return this.get('timeline');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'oncancel', {
-        set(value) {
+    DelayedAnimation_DefineProperty('oncancel', {
+        set: function (value) {
             return this.set('oncancel', value);
         },
-        get() {
+        get: function () {
             return this.get('oncancel');
         }
     });
-    Object.defineProperty(DelayedAnimation.prototype, 'onfinish', {
-        set(value) {
+    DelayedAnimation_DefineProperty('onfinish', {
+        set: function (value) {
             return this.set('onfinish', value);
         },
-        get() {
+        get: function () {
             return this.get('onfinish');
         }
     });
-    DelayedAnimation.prototype.get = function get(name) {
+
+    function DelayedAnimation_proto(a, b) {
+        DelayedAnimation.prototype[a] = b;
+    }
+    DelayedAnimation_proto('get', function (name) {
         if (this.exists()) {
             return this._Animation[name];
         } else {
             return this["_" + name];
         }
-    }
-    DelayedAnimation.prototype.set = function set(name, value) {
+    });
+    DelayedAnimation_proto('set', function (name, value) {
         if (this.exists()) {
             return this._Animation[name] = value;
         } else {
             return this["_" + name] = value;
         }
-    }
-    DelayedAnimation.prototype.exists = function exists() {
+    });
+    DelayedAnimation_proto('exists', function () {
         return !!this._Animation;
-    }
-    DelayedAnimation.prototype.cancel = function cancel() {
+    });
+    DelayedAnimation_proto('cancel', function () {
         if (this.exists()) {
             this._Animation.cancel();
         }
-    }
-    DelayedAnimation.prototype.finish = function finish() {
+    });
+    DelayedAnimation_proto('finish', function () {
         if (this.exists()) {
             this._Animation.finish();
         }
-    }
-    DelayedAnimation.prototype.pause = function pause() {
+    });
+    DelayedAnimation_proto('pause', function () {
         if (this.exists()) {
             this._Animation.pause();
         }
-    }
-    DelayedAnimation.prototype.play = function play() {
+    });
+    DelayedAnimation_proto('play', function () {
         if (this.exists()) {
             this._Animation.play();
         } else {
@@ -178,29 +193,31 @@ AnimatorJS = (function () {
             this._Animation.timeline = this._timeline;
             this._Animation.oncancel = this._oncancel;
             this._Animation.onfinish = this._onfinish;
-            if (this._is_bound) this.bind(this._bind_type, this._bind);
+            if (this._is_bound)
+                this.bind(this._bind_type, this._bind);
         }
-    }
-    DelayedAnimation.prototype.reverse = function reverse() {
+    });
+    DelayedAnimation_proto('reverse', function () {
         if (this.exists()) {
             this._Animation.reverse();
         }
-    }
-    DelayedAnimation.prototype.updatePlaybackRate = function updatePlaybackRate(speed) {
+    });
+    DelayedAnimation_proto('updatePlaybackRate', function (speed) {
         if (this.exists()) {
             this._Animation.updatePlaybackRate(speed);
         }
-    }
-    DelayedAnimation.prototype.bind = function (type, func, isGlobal) {
+    });
+    DelayedAnimation_proto('bind', function (type, func, isGlobal) {
+        var _this = this;
         this._bind_isglobal = isGlobal;
         this.playbackRate = 0;
         this._is_bound = true;
         this._bind_type = type;
         this._bind = func;
-        this._bound_call = (event) => {
-            this._is_bound = true;
-            if (this.exists()) {
-                this.currentTime = this._bind(event, this);
+        this._bound_call = function (event) {
+            _this._is_bound = true;
+            if (_this.exists()) {
+                _this.currentTime = _this._bind(event, _this);
             }
         };
         if (this._element && this._bind_type && this._bind_type && !this._bound) {
@@ -211,14 +228,15 @@ AnimatorJS = (function () {
             }
             this.play();
         }
-    }
+    });
     /*-----------------------------------------------------------------------------*\
     function _Animator():AnimatorJS
     a wrapper for creating the animator js instance if one is not found
     if one is found returns that instance.
     \*-----------------------------------------------------------------------------*/
-    let _Animator = function () {
-        if (this.AnimatorJsInstance) return this.AnimatorJsInstance;
+    var _Animator = function () {
+        if (this.AnimatorJsInstance)
+            return this.AnimatorJsInstance;
         this.AnimatorJsInstance = new AnimatorJS(this);
         return this.AnimatorJsInstance;
     };
@@ -238,166 +256,208 @@ AnimatorJS = (function () {
         AnimatorJS.prototype[name] = function (...args) {
             this.set(name, args.join(" "));
             return this;
-        }
+        };
     }
     defer_make();
     AnimatorJS.prototype.resetCurrent = function () {
-        this.current = {};
+        this.current = {
+            // duration: undefined,
+            // iterations: undefined
+        };
         //I am not sure why I still keep this around. it will be useful if down the road this.current
         //needs to have data when starting.
-    }
-
+    };
     AnimatorJS.prototype.next = function () {
         this.Animation.push(this.current);
         this.resetCurrent();
         return this;
-    }
+    };
     AnimatorJS.prototype.set = function (name, value) {
+        if (value === undefined) return;
         this.current[name] = value;
-        for (let i = 0; i < this.Animation.length; i++) {
+        for (var i = 0; i < this.Animation.length; i++) {
             if (!this.Animation[i][name]) {
                 this.Animation[i][name] = "auto";
             }
         }
-    }
-
+    };
     AnimatorJS.prototype.get = function (name) {
-        return this.current[name];
-    }
-
+        return this.current[name] || "";
+    };
     AnimatorJS.prototype.reset = function () {
         this.Animation = [];
         this.resetCurrent();
         return this;
-    }
-
+    };
     AnimatorJS.prototype.valid = function (thing) {
         return thing != undefined;
-    }
+    };
     AnimatorJS.prototype.transform = function (x, y, z) {
-        let str = [];
-        if (this.valid(x)) str.push(`translateX(${x}px)`);
-        if (this.valid(y)) str.push(`translateY(${y}px)`);
-        if (this.valid(z)) str.push(`translateZ(${z}px)`);
+        var str = [];
+        if (this.valid(x))
+            str.push("translateX(" + x + "px)");
+        if (this.valid(y))
+            str.push("translateY(" + y + "px)");
+        if (this.valid(z))
+            str.push("translateZ(" + z + "px)");
         this.set("transform", ((this.get("transform") || "") + " " + str.join(" ")).trim());
         return this;
-    }
+    };
     AnimatorJS.prototype.rotate = function (x, y, z) {
-        let str = [];
+        var str = [];
         if (this.valid(x)) {
             if (this.valid(y) || this.valid(z)) {
-                str.push(`rotateX(${x}deg)`);
+                str.push("rotateX(" + x + "deg)");
             } else {
-                str.push(`rotate(${x}deg)`);
+                str.push("rotate(" + x + "deg)");
             }
         }
-        if (this.valid(y)) str.push(`rotateY(${y}deg)`);
-        if (this.valid(z)) str.push(`rotateZ(${z}deg)`);
+        if (this.valid(y))
+            str.push("rotateY(" + y + "deg)");
+        if (this.valid(z))
+            str.push("rotateZ(" + z + "deg)");
         this.set("transform", ((this.get("transform") || "") + " " + str.join(" ")).trim());
         return this;
-    }
-
+    };
     AnimatorJS.prototype.duration = function (t) {
         this.requireDuration = true;
         this.set("duration", t);
         return this;
-    }
-
-    AnimatorJS.prototype.build = function (duration = 1000) {
+    };
+    AnimatorJS.prototype.build = function (duration) {
+        if (duration === undefined) {
+            duration = 1000;
+        }
         if (Object.keys(this.current).length > 0) {
+            let keys = Object.keys(this.current);
+            for (let i = 0; i < keys.length; i++) {
+                if (this.current[keys[i]] === undefined) {
+                    delete this.current[keys[i]];
+                }
+            }
             this.Animation.push(this.current);
             this.resetCurrent();
         }
         return this.updateDurationsForPlaying(duration);
-    }
-    AnimatorJS.prototype.start = function (duration, options = {}) {
-        let animation = this.build(duration);
+    };
+    AnimatorJS.prototype.start = function (duration, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        var animation = this.build(duration);
         options.duration = duration;
-        if (this.itterationCount) options.iterations = this.itterationCount;
+        if (this.itterationCount)
+            options.iterations = this.itterationCount;
         if (this.Element) {
             this.AnimationInstance = this.Element.animate(animation, options);
         } else {
             this.AnimationInstance = new DelayedAnimationHolder(animation, options);
         }
         return this.AnimationInstance;
-    }
-    AnimatorJS.prototype.render = function (duration = 1000, options = {}) {
-        let animation = this.build(duration);
+    };
+    AnimatorJS.prototype.render = function (duration, options) {
+        if (duration === undefined) {
+            duration = 1000;
+        }
+        if (options === undefined) {
+            options = {};
+        }
+        var animation = this.build(duration);
         options.duration = duration;
-        if (this.itterationCount) options.iterations = this.itterationCount;
+        if (this.itterationCount)
+            options.iterations = this.itterationCount;
         if (this.Element) {
             this.AnimationInstance = new DelayedAnimation(animation, options, this.Element);
         } else {
             this.AnimationInstance = new DelayedAnimationHolder(animation, options);
         }
         return this.AnimationInstance;
-    }
-
+    };
     AnimatorJS.prototype.updateDurationsForPlaying = function (duration) {
-        let last = 0;
-        //if (this.durationsCalculated) return 0;
-        let _keyframes = Object.assign([], this.Animation);
+        var last = 0;
+        var _keyframes = Object.assign([], this.Animation);
         this.durationsCalculated = true;
-        for (let i = 0; i < _keyframes.length; i++) {
-            let partDuration = (duration / _keyframes.length - 1);
+        for (var i = 0; i < _keyframes.length; i++) {
+            var partDuration = (duration / _keyframes.length - 1);
             if (this.requireDuration) {
                 partDuration = _keyframes[i].duration;
-                if (!partDuration) throw new Error("missing segment duration, if duration is used all segments need to have a duration");
+                if (!partDuration)
+                    throw new Error("missing segment duration, if duration is used all segments need to have a duration");
             }
             if (i === 0 && _keyframes.length > 1) {
                 duration -= _keyframes[1].duration || 0;
                 _keyframes[0].duration = 0;
+            } else if (i === _keyframes.length - 1) {
+                _keyframes[i].duration = (duration - last);
             } else {
                 _keyframes[i].duration = (last += partDuration) / duration;
             }
         }
         return _keyframes;
-    }
-
+    };
     AnimatorJS.prototype.easing = function (easingmode) {
         this.set("easing", easingmode);
         this.set("animationTimingFunction", easingmode);
         return this;
-    }
-
+    };
     AnimatorJS.prototype.repeat = function (count) {
         this.itterationCount = count;
         return this;
-    }
-
+    };
     AnimatorJS.prototype.bind = function (type, func) {
-        let animationInstance = this.render();
+        var animationInstance = this.render();
         animationInstance.bind(type, func);
         return animationInstance;
-    }
+    };
     AnimatorJS.prototype.css = function (string) {
-        let parts = string.split(";");
-        for (let part of parts) {
-            let name = part.split(":", 2)[0];
-            let value = part.split(":", 2)[1];
-            if (name != "") this.set(name, value.trim());
+        var parts = string.split(";");
+        for (var i = 0, parts = parts; i < parts.length; i++) {
+            var part = parts[i];
+            var name = part.split(":", 2)[0];
+            var value = part.split(":", 2)[1];
+            if (name != "")
+                this.set(name, value.trim());
         }
         return this;
-    }
+    };
     AnimatorJS.prototype.raw = function (object) {
-        let keys = Object.keys(object);
-        for (let i = 0; i < keys.length; i++) {
+        var keys = Object.keys(object);
+        for (var i = 0; i < keys.length; i++) {
             this.set(keys[i], object[keys[i]]);
         }
         return this;
-    }
+    };
     AnimatorJS.prototype.append = function (Animator) {
-        for (let i = 0; i < Animator.Animation.length; i++) {
+        for (var i = 0; i < Animator.Animation.length; i++) {
             this.Animation.push(Animator.Animation[i]);
         }
         return this;
-    }
-
+    };
+    AnimatorJS.prototype.scale = function (size_percent) {
+        if (this.valid(size_percent)) {
+            var str = "translateX(" + size_percent + "px)";
+            this.set("transform", (this.get("transform") || "") + " " + str.trim());
+        } else {
+            conso.wa("invalid size for scale");
+        }
+        return this;
+    };
     /*-----------------------------------------------------------------------------*\
     Extend the Element prototype so that you can do Element.AnimatorJS to animate that element.
     \*-----------------------------------------------------------------------------*/
+    defineProperty(Element.prototype, "AnimatorJS", {
+        value: _Animator
+    });
 
-    Element.prototype.AnimatorJS = _Animator;
+    /*-----------------------------------------------------------------------------*\
+    function GlobalAnimatorJS(element?);
+    this function is exposed to the global scope to allow creation of non-Element bound AnimatorJS'
+    \*-----------------------------------------------------------------------------*/
+    function GlobalAnimatorJS(element) {
+        return new AnimatorJS(element);
+    };
+
+    return GlobalAnimatorJS;
 
     function defer_make() {
         make("alignContent");
@@ -914,12 +974,5 @@ AnimatorJS = (function () {
         make("zIndex");
         make("zoom");
     }
-    /*-----------------------------------------------------------------------------*\
-    function GlobalAnimatorJS(element?);
-    this function is exposed to the global scope to allow creation of non-Element bound AnimatorJS'
-    \*-----------------------------------------------------------------------------*/
-    //expose GlobalAnimatorJS as AnimatorJS to global scope as it can be used to make DelayedAnimationHolder Instances.
-    return function GlobalAnimatorJS(element) {
-        return new AnimatorJS(element);
-    }
+
 })();
