@@ -17,27 +17,53 @@
         ::-webkit-scrollbar {
             display: none;
         }
+
+        #content {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0px;
+            left: 0px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <h1 id="name">AnimatorJS</h1>
     <div id="content">
-        <h3>demo's</h3>
-        <a href="./examples/color_delayed.html">colors (delayed)</a>
-        <br />
-        <a href="./examples/color.html">colors</a>
-        <br />
-        <a href="./examples/dom.html">dom</a>
-        <br />
-        <h3>playground</h3>
-        <a href="./playground/playground.html">playground</a>
+        <div id="page0">
+            <h1 id="name">AnimatorJS</h1>
+            <h3>demo's</h3>
+            <a href="./examples/color_delayed.html">colors (delayed)</a>
+            <br />
+            <a href="./examples/color.html">colors</a>
+            <br />
+            <a href="./examples/dom.html">dom</a>
+            <br />
+            <h3>playground</h3>
+            <a href="./playground/playground.html">playground</a>
+
+            <br />
+            <br />
+            <h3>scroll to see more</h3>
+        </div>
+        <div id="page1">
+            <h1 id="name">Page 1</h1>
+        </div>
+        <div id="page2">
+            <h1 id="name">Page 2</h1>
+        </div>
+        <div id="page3">
+            <h1 id="name">Page 3</h1>
+        </div>
+        <div id="page4">
+            <h1 id="name">Page 4</h1>
+        </div>
     </div>
     <div id="top_bar_fixed"></div>
     <script>
         function demo() {
-            let top_bar_fixed = document.querySelector("#top_bar_fixed");
-            top_bar_fixed.AnimatorJS()
+            document.querySelector("#top_bar_fixed").AnimatorJS()
                 .position("fixed")
                 .top("0px")
                 .left("0px")
@@ -62,7 +88,291 @@
                 .backgroundColor("red")
                 .bind("scroll", function () {
                     let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
-                    return Math.min(Math.max(value, 0), 999);
+                    return Math.min(Math.max(value, 0), 999.99999);
+                });
+
+            document.querySelector("#page0").AnimatorJS()
+                .position("fixed")
+                .top("0px")
+                .left("0px")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("100vh")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear").next()
+                .position("fixed")
+                .top("0px")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999.99999);
+                });
+            document.querySelector("#page1").AnimatorJS()
+                .position("fixed")
+                .top("100vh")
+                .left("0px")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vh")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("-100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("-100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("-100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999.99999);
+                });
+            document.querySelector("#page2").AnimatorJS()
+                .position("fixed")
+                .top("100vh")
+                .left("0px")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vh")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("-100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("-100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999.99999);
+                });
+            document.querySelector("#page3").AnimatorJS()
+                .position("fixed")
+                .top("100vh")
+                .left("0px")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vh")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("-100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999.99999);
+                });
+            document.querySelector("#page4").AnimatorJS()
+                .position("fixed")
+                .top("0vh")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("100vh")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("100vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .bind("scroll", function () {
+                    let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    return Math.min(Math.max(value, 0), 999.99999);
                 });
         }
     </script>
