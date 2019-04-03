@@ -15,7 +15,8 @@ minify({
         compress: true,
         compress: {
             inline: 3,
-            drop_console: true
+            drop_console: true,
+            keep_fargs: false
         }
     },
     callback: function (err, min) {
