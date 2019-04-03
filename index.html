@@ -11,7 +11,7 @@
     <style>
         html,
         body {
-            height: 5000px;
+            height: 6000px;
             overflow-x: hidden;
         }
 
@@ -64,7 +64,8 @@
     <div id="top_bar_fixed"></div>
     <script>
         function demo() {
-            document.querySelector("#top_bar_fixed").AnimatorJS()
+            let last_scrollY = -1000;
+            animation = document.querySelector("#top_bar_fixed").AnimatorJS()
                 .position("fixed")
                 .top("0px")
                 .left("0px")
@@ -87,8 +88,19 @@
                 .width("100%")
                 .height("10px")
                 .backgroundColor("red")
-                .bind("scroll", function () {
+                .bind("scroll", function (evt) {
                     let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
+                    if (last_scrollY < scrollY && document.body.scrollHeight - innerHeight - scrollY < 0) {
+                        window.scrollTo(0, -1 * (document.body.scrollHeight - innerHeight - scrollY));
+                        last_scrollY = -1000;
+                    }
+                    if (last_scrollY > scrollY && scrollY <= 1) {
+                        window.scrollTo(0, document.body.scrollHeight - innerHeight - 2);
+                    }
+                    console.log(last_scrollY, scrollY, last_scrollY > scrollY && scrollY <= 1, last_scrollY <
+                        scrollY && scrollY === document.body.scrollHeight - innerHeight - 1, document.body
+                        .scrollHeight - innerHeight - scrollY)
+                    last_scrollY = scrollY;
                     return Math.min(Math.max(value, 0), 999.99999);
                 });
 
@@ -140,10 +152,18 @@
                 .position("fixed")
                 .top("0px")
                 .left("0vw")
-                .width("50vw")
+                .width("100vw")
                 .height("100vh")
                 .backgroundColor("black")
-                .color("transparent")
+                .color("white")
+                .easing("linear").next()
+                .position("fixed")
+                .top("0px")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
                 .easing("linear")
                 .bind("scroll", function () {
                     let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
@@ -169,6 +189,14 @@
                 .position("fixed")
                 .top("0px")
                 .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0px")
+                .left("-100vw")
                 .width("100vw")
                 .height("100vh")
                 .backgroundColor("white")
@@ -255,6 +283,15 @@
                 .backgroundColor("black")
                 .color("white")
                 .easing("linear")
+                .next()
+                .position("fixed")
+                .top("-100vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
                 .bind("scroll", function () {
                     let value = (scrollY / (document.body.scrollHeight - innerHeight)) * 1000;
                     return Math.min(Math.max(value, 0), 999.99999);
@@ -299,6 +336,15 @@
                 .position("fixed")
                 .top("0vh")
                 .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("black")
+                .color("white")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("0vh")
+                .left("-100vw")
                 .width("100vw")
                 .height("100vh")
                 .backgroundColor("black")
@@ -365,6 +411,15 @@
                 .next()
                 .position("fixed")
                 .top("0vh")
+                .left("0vw")
+                .width("100vw")
+                .height("100vh")
+                .backgroundColor("white")
+                .color("black")
+                .easing("linear")
+                .next()
+                .position("fixed")
+                .top("-100vh")
                 .left("0vw")
                 .width("100vw")
                 .height("100vh")
