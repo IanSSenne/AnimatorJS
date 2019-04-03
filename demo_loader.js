@@ -1,12 +1,13 @@
 let src_0, src_1, src_2;
+let base = window.location.hostname == "localhost" ? window.location.origin : "https://ianssenne.github.io/AnimatorJS";
 if (window.location.search.length <= 1) {
-    src_0 = "/build/AnimatorJS.min.js"
-    src_1 = "/build/AnimatorJS.dom.min.js"
-    src_2 = "/build/AnimatorJS.ref.min.js"
+    src_0 = base + "/build/AnimatorJS.min.js"
+    src_1 = base + "/build/AnimatorJS.dom.min.js"
+    src_2 = base + "/build/AnimatorJS.ref.min.js"
 } else {
-    src_0 = "/src/AnimatorJS.js"
-    src_1 = "/src/AnimatorJS.dom.js"
-    src_2 = "/src/AnimatorJS.ref.js"
+    src_0 = base + "/src/AnimatorJS.js"
+    src_1 = base + "/src/AnimatorJS.dom.js"
+    src_2 = base + "/src/AnimatorJS.ref.js"
 }
 
 function s(u, f) {
