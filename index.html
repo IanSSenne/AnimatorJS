@@ -97,9 +97,6 @@
                     if (last_scrollY > scrollY && scrollY <= 1) {
                         window.scrollTo(0, document.body.scrollHeight - innerHeight - 2);
                     }
-                    console.log(last_scrollY, scrollY, last_scrollY > scrollY && scrollY <= 1, last_scrollY <
-                        scrollY && scrollY === document.body.scrollHeight - innerHeight - 1, document.body
-                        .scrollHeight - innerHeight - scrollY)
                     last_scrollY = scrollY;
                     return Math.min(Math.max(value, 0), 999.99999);
                 });
