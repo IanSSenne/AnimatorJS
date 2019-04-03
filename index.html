@@ -27,26 +27,51 @@
         #page0 {
             overflow: hidden;
         }
+
+        #page0content>*:first-child {
+            position: relative;
+            top: 150px;
+            font-size: 200px;
+            overflow-x: hidden;
+            white-space: nowrap
+        }
+
+        #page0content>h3 {
+            position: relative;
+            top: 150px;
+            font-size: 100px;
+            overflow-x: hidden;
+            white-space: nowrap
+        }
+
+        #page0content>h1:not(:first-child) {
+            position: relative;
+            top: 20vh;
+            overflow-x: hidden;
+            white-space: nowrap
+        }
+
+        #page0content {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
     <div id="content">
         <div id="page0">
-            <h1 id="name">AnimatorJS</h1>
-            <h3>demo's</h3>
-            <a href="./examples/color_delayed.html">colors (delayed)</a>
-            <br />
-            <a href="./examples/color.html">colors</a>
-            <br />
-            <a href="./examples/dom.html">dom</a>
-            <br />
-            <h3>playground</h3>
-            <a href="./playground/playground.html">playground</a>
-
-            <br />
-            <br />
-            <h3>scroll to see more</h3>
+            <div id="page0content">
+                <h1>AnimatorJS</h1>
+                <h3>By Ian Senne</h3>
+                <h1> SCROLL </h1>
+            </div>
         </div>
         <div id="page1">
             <h1 id="name">Page 1</h1>
@@ -65,6 +90,37 @@
     <script>
         function demo() {
             let last_scrollY = -1000;
+            let last_scrollTime = 0;
+            n = 0;
+
+            function dist(a, b) {
+                return Math.abs(a - b);
+            }
+
+            function scrollLock() {
+                window.requestAnimationFrame(scrollLock);
+                // setTimeout(scrollLock, 1000);
+                let targets = [0, 1684, 2527, 3368, 4211, 5051];
+                let nearest = targets[0];
+                for (let i = 0; i < targets.length; i++) {
+                    // debugger;
+                    if (dist(nearest, scrollY) >= dist(scrollY, targets[i])) {
+                        nearest = targets[i];
+                    }
+                }
+                if (last_scrollTime + 200 < performance.now()) {
+                    let scrollTarget =
+                        nearest //Math.round(scrollY / 1000) * 1000 + Math.floor(5.994068801897983 * Math.round(scrollY / 1000)) * 843;
+                    let scrollDif = Math.max(Math.min(20, scrollTarget - scrollY), -20);
+                    // window.scrollBy(0, scrollDif);
+                }
+                // console.log(Math.abs(Math.max(Math.min(last_scrollY - scrollY, 20), -20)) != 20 && Math.abs(Math.max(
+                // Math.min(last_scrollY - scrollY, 20), -20)) != 0);
+            }
+            scrollLock();
+            document.addEventListener("mousewheel", () => {
+                last_scrollTime = performance.now();
+            })
             animation = document.querySelector("#top_bar_fixed").AnimatorJS()
                 .position("fixed")
                 .top("0px")
@@ -97,10 +153,13 @@
                     if (last_scrollY > scrollY && scrollY <= 1) {
                         window.scrollTo(0, document.body.scrollHeight - innerHeight - 2);
                     }
+                    if (Math.abs(Math.max(Math.min(last_scrollY - scrollY, 20), -20)) != 20 && Math.abs(Math.max(
+                            Math.min(last_scrollY - scrollY, 20), -20)) != 0) {
+                        last_scrollTime = performance.now();
+                    }
                     last_scrollY = scrollY;
                     return Math.min(Math.max(value, 0), 999.99999);
                 });
-
             document.querySelector("#page0").AnimatorJS()
                 .position("fixed")
                 .top("0px")

@@ -448,6 +448,7 @@ this.AnimatorJS = (function () {
     defineProperty(Element.prototype, "AnimatorJS", {
         value: _Animator
     });
+    //this is safe as Element is not a primitive
 
     /*-----------------------------------------------------------------------------*\
     function GlobalAnimatorJS(element?);
