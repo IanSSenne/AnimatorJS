@@ -58,9 +58,9 @@
             width: 100vw;
         }
 
-        ::-webkit-scrollbar {
+        /* ::-webkit-scrollbar {
             display: none;
-        }
+        } */
     </style>
 </head>
 
@@ -89,6 +89,10 @@
     <div id="top_bar_fixed"></div>
     <script>
         function demo() {
+            if (AnimatorJS.polyfill() && !document.createElement("div").animate) {
+                console.log("using a polyfill, waiting for that to load");
+                // return setTimeout(demo, 100);
+            }
             let last_scrollY = -1000;
             let last_scrollTime = 0;
             n = 0;
@@ -96,8 +100,16 @@
             function dist(a, b) {
                 return Math.abs(a - b);
             }
+            let scrollYFix = false;
 
             function scrollLock() {
+                if (!window.scrollY) scrollYFix = true;
+                if (scrollYFix) {
+
+                    window.scrollY = window.pageYOffset > 0 ? window.pageYOffset : document.documentElement
+                        .scrollTop; //ie fix
+                    // document.dispatchEvent(new Event("scroll"));
+                }
                 window.requestAnimationFrame(scrollLock);
                 // setTimeout(scrollLock, 1000);
                 let targets = [0, 1684, 2527, 3368, 4211, 5051];
@@ -118,7 +130,7 @@
                 // Math.min(last_scrollY - scrollY, 20), -20)) != 0);
             }
             scrollLock();
-            document.addEventListener("mousewheel", () => {
+            document.addEventListener("mousewheel", function () {
                 last_scrollTime = performance.now();
             })
             animation = document.querySelector("#top_bar_fixed").AnimatorJS()

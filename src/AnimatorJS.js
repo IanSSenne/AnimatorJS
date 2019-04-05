@@ -1,4 +1,4 @@
-this.AnimatorJS = (function () {
+window.AnimatorJS = (function () {
     /*-----------------------------------------------------------------------------*\
     POLYFILL :)
     \*-----------------------------------------------------------------------------*/
@@ -208,18 +208,17 @@ this.AnimatorJS = (function () {
         }
     });
     DelayedAnimation_proto('bind', function (type, func, isGlobal) {
-        var _this = this;
         this._bind_isglobal = isGlobal;
         this.playbackRate = 0;
         this._is_bound = true;
         this._bind_type = type;
         this._bind = func;
         this._bound_call = function (event) {
-            _this._is_bound = true;
-            if (_this.exists()) {
-                _this.currentTime = _this._bind(event, _this);
+            this._is_bound = true;
+            if (this.exists()) {
+                this.currentTime = this._bind(event, this);
             }
-        };
+        }.bind(this);
         if (this._element && this._bind_type && this._bind_type && !this._bound) {
             if (this._bind_isglobal) {
                 this._element.addEventListener(type, this._bound_call);

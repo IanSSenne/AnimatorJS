@@ -1,5 +1,5 @@
 let src_0, src_1, src_2, base = window.location.hostname == "localhost" ? window.location.origin : "https://ianssenne.github.io/AnimatorJS",
-    URI = window.location.search.substr(1).split("&").reduce((a, b) => {
+    URI = window.location.search.substr(1).split("&").reduce(function (a, b) {
         a[b.split("=")[0]] = JSON.parse((c = b.split("=", 2)[1]) == void 0 ? "false" : c);
         return a;
     }, {
@@ -25,9 +25,13 @@ function s(u, f) {
 function demo() {}
 (function a() {
     if (document.head) {
-        document.head.appendChild(s(src_0, _ => document.head.appendChild(s(src_1, _ => document.head.appendChild(s(src_2, function () {
-            demo();
-        }))))));
+        document.head.appendChild(s(src_0, function () {
+            document.head.appendChild(s(src_1, function (_) {
+                document.head.appendChild(s(src_2, function () {
+                    demo();
+                }))
+            }))
+        }));
 
     } else {
         setImmediate(a);

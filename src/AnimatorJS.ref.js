@@ -1,4 +1,4 @@
-AnimatorJS.reference = function () {
+window.AnimatorJS.reference = function () {
     return void 0; //nonfunctional
     let defineProperty = Object.defineProperty;
 
