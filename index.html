@@ -8,11 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./demo_loader.js"></script>
     <script src="./homepage.js"></script>
-    <!-- <script src="main.js"></script> -->
     <style>
         html,
         body {
-            height: 6000px;
+            height: calc(var(--height, 6000) * 1px);
             overflow-x: hidden;
         }
 
@@ -65,12 +64,11 @@
     </style>
 </head>
 
-<body>
+<body style="--height:6000;">
     <div id="content">
         <div id="page0">
             <div id="page0content">
                 <h1>AnimatorJS</h1>
-                <!-- <h3>By Ian Senne</h3> -->
                 <h1> SCROLL </h1>
             </div>
         </div>

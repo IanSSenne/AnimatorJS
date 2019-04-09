@@ -1,4 +1,4 @@
-window.AnimatorJS = (function () {
+window["AnimatorJS"] = (function () {
     /*-----------------------------------------------------------------------------*\
     POLYFILL :)
     \*-----------------------------------------------------------------------------*/
@@ -233,10 +233,10 @@ window.AnimatorJS = (function () {
     a wrapper for creating the animator js instance if one is not found
     if one is found returns that instance.
     \*-----------------------------------------------------------------------------*/
-    var _Animator = function () {
+    var _Animator = function (continuum = false) {
         if (this.AnimatorJsInstance)
             return this.AnimatorJsInstance;
-        this.AnimatorJsInstance = new AnimatorJS(this);
+        this.AnimatorJsInstance = new AnimatorJS(this, continuum);
         return this.AnimatorJsInstance;
     };
     /*-----------------------------------------------------------------------------*\
@@ -245,33 +245,39 @@ window.AnimatorJS = (function () {
     using chainable function calls.
     ended by AnimationJS.render or AnimationJS.start
     \*-----------------------------------------------------------------------------*/
-    function AnimatorJS(element) {
+    function AnimatorJS(element, continuum) {
         this.Element = element;
         this.Animation = [];
-        this.resetCurrent();
+        this.current = {};
+        this.resetNext = !continuum;
     }
     //used later on as to not clutter middle of file.
-    function make(name) {
-        AnimatorJS.prototype[name] = function (...args) {
+    var defaults = {
+        easing: "linear"
+    };
+
+    function make(name, webkit = false, def = "auto") {
+        defaults[name] = def;
+        AnimatorJS_proto(name, function (...args) {
             this.set(name, args.join(" "));
             return this;
-        };
+        });
+        if (webkit) {
+            name = name[1].toUpperCase() + name.substr(1);
+            make("webkit" + name, false, def);
+        }
     }
     defer_make();
-    AnimatorJS.prototype.resetCurrent = function () {
-        this.current = {
-            // duration: undefined,
-            // iterations: undefined
-        };
-        //I am not sure why I still keep this around. it will be useful if down the road this.current
-        //needs to have data when starting.
-    };
-    AnimatorJS.prototype.next = function () {
+
+    function AnimatorJS_proto(name, func) {
+        AnimatorJS.prototype[name] = func;
+    }
+    AnimatorJS_proto("next", function () {
         this.Animation.push(this.current);
-        this.resetCurrent();
+        if (this.resetNext) this.current = {};
         return this;
-    };
-    AnimatorJS.prototype.set = function (name, value) {
+    });
+    AnimatorJS_proto("set", function (name, value) {
         if (value === undefined) return;
         this.current[name] = value;
         for (var i = 0; i < this.Animation.length; i++) {
@@ -279,19 +285,19 @@ window.AnimatorJS = (function () {
                 this.Animation[i][name] = "auto";
             }
         }
-    };
-    AnimatorJS.prototype.get = function (name) {
+    });
+    AnimatorJS_proto("get", function (name) {
         return this.current[name] || "";
-    };
-    AnimatorJS.prototype.reset = function () {
+    });
+    AnimatorJS_proto("reset", function () {
         this.Animation = [];
-        this.resetCurrent();
+        this.current = {};
         return this;
-    };
-    AnimatorJS.prototype.valid = function (thing) {
+    });
+    AnimatorJS_proto("valid", function (thing) {
         return thing != undefined;
-    };
-    AnimatorJS.prototype.transform = function (x, y, z) {
+    });
+    AnimatorJS_proto("transform", function (x, y, z) {
         var str = [];
         if (this.valid(x))
             str.push("translateX(" + x + "px)");
@@ -301,8 +307,8 @@ window.AnimatorJS = (function () {
             str.push("translateZ(" + z + "px)");
         this.set("transform", ((this.get("transform") || "") + " " + str.join(" ")).trim());
         return this;
-    };
-    AnimatorJS.prototype.rotate = function (x, y, z) {
+    });
+    AnimatorJS_proto("rotate", function (x, y, z) {
         var str = [];
         if (this.valid(x)) {
             if (this.valid(y) || this.valid(z)) {
@@ -317,13 +323,13 @@ window.AnimatorJS = (function () {
             str.push("rotateZ(" + z + "deg)");
         this.set("transform", ((this.get("transform") || "") + " " + str.join(" ")).trim());
         return this;
-    };
-    AnimatorJS.prototype.duration = function (t) {
+    });
+    AnimatorJS_proto("duration", function (t) {
         this.requireDuration = true;
         this.set("duration", t);
         return this;
-    };
-    AnimatorJS.prototype.build = function (duration) {
+    });
+    AnimatorJS_proto("build", function (duration) {
         if (duration === undefined) {
             duration = 1000;
         }
@@ -335,11 +341,31 @@ window.AnimatorJS = (function () {
                 }
             }
             this.Animation.push(this.current);
-            this.resetCurrent();
+            if (this.resetNext) this.current = {};
         }
+        this.backfillKeyframes();
         return this.updateDurationsForPlaying(duration);
-    };
-    AnimatorJS.prototype.start = function (duration, options) {
+    });
+    AnimatorJS_proto("backfillKeyframes", function () {
+        //this function ensures that all keyframes in the set will have all values or assume a default value.
+        let required = [];
+        for (let i = 0; i < this.Animation.length; i++) {
+            let keys = Object.keys(this.Animation[i]);
+            for (let _index = 0; _index < keys.length; _index++) {
+                if (!required.includes(keys[_index])) {
+                    required.push(keys[_index]);
+                }
+            }
+        }
+        for (let i = 0; i < this.Animation.length; i++) {
+            for (let _index = 0; _index < required.length; _index++) {
+                if (this.Animation[i][required[_index]] == undefined) {
+                    this.Animation[i][required[_index]] = defaults[required[_index]] || "auto";
+                }
+            }
+        }
+    });
+    AnimatorJS_proto("start", function (duration, options) {
         if (options === undefined) {
             options = {};
         }
@@ -353,8 +379,8 @@ window.AnimatorJS = (function () {
             this.AnimationInstance = new DelayedAnimationHolder(animation, options);
         }
         return this.AnimationInstance;
-    };
-    AnimatorJS.prototype.render = function (duration, options) {
+    });
+    AnimatorJS_proto("render", function (duration, options) {
         if (duration === undefined) {
             duration = 1000;
         }
@@ -371,8 +397,8 @@ window.AnimatorJS = (function () {
             this.AnimationInstance = new DelayedAnimationHolder(animation, options);
         }
         return this.AnimationInstance;
-    };
-    AnimatorJS.prototype.updateDurationsForPlaying = function (duration) {
+    });
+    AnimatorJS_proto("updateDurationsForPlaying", function (duration) {
         var last = 0;
         var _keyframes = Object.assign([], this.Animation);
         this.durationsCalculated = true;
@@ -393,22 +419,22 @@ window.AnimatorJS = (function () {
             }
         }
         return _keyframes;
-    };
-    AnimatorJS.prototype.easing = function (easingmode) {
+    });
+    AnimatorJS_proto("easing", function (easingmode) {
         this.set("easing", easingmode);
         this.set("animationTimingFunction", easingmode);
         return this;
-    };
-    AnimatorJS.prototype.repeat = function (count) {
+    });
+    AnimatorJS_proto("repeat", function (count) {
         this.itterationCount = count;
         return this;
-    };
-    AnimatorJS.prototype.bind = function (type, func) {
+    });
+    AnimatorJS_proto("bind", function (type, func) {
         var animationInstance = this.render();
         animationInstance.bind(type, func);
         return animationInstance;
-    };
-    AnimatorJS.prototype.css = function (string) {
+    });
+    AnimatorJS_proto("css", function (string) {
         var parts = string.split(";");
         for (var i = 0, parts = parts; i < parts.length; i++) {
             var part = parts[i];
@@ -418,21 +444,21 @@ window.AnimatorJS = (function () {
                 this.set(name, value.trim());
         }
         return this;
-    };
-    AnimatorJS.prototype.raw = function (object) {
+    });
+    AnimatorJS_proto("raw", function (object) {
         var keys = Object.keys(object);
         for (var i = 0; i < keys.length; i++) {
             this.set(keys[i], object[keys[i]]);
         }
         return this;
-    };
-    AnimatorJS.prototype.append = function (Animator) {
+    });
+    AnimatorJS_proto("append", function (Animator) {
         for (var i = 0; i < Animator.Animation.length; i++) {
             this.Animation.push(Animator.Animation[i]);
         }
         return this;
-    };
-    AnimatorJS.prototype.scale = function (size_percent) {
+    });
+    AnimatorJS_proto("scale", function (size_percent) {
         if (this.valid(size_percent)) {
             var str = "translateX(" + size_percent + "px)";
             this.set("transform", (this.get("transform") || "") + " " + str.trim());
@@ -440,7 +466,7 @@ window.AnimatorJS = (function () {
             conso.wa("invalid size for scale");
         }
         return this;
-    };
+    });
     /*-----------------------------------------------------------------------------*\
     Extend the Element prototype so that you can do Element.AnimatorJS to animate that element.
     \*-----------------------------------------------------------------------------*/
@@ -460,519 +486,454 @@ window.AnimatorJS = (function () {
     return GlobalAnimatorJS;
 
     function defer_make() {
-        make("alignContent");
-        make("alignItems");
-        make("alignSelf");
-        make("alignmentBaseline");
-        make("all");
-        make("animation");
-        make("animationDelay");
-        make("animationDirection");
-        make("animationDuration");
-        make("animationFillMode");
-        make("animationIterationCount");
-        make("animationName");
-        make("animationPlayState");
-        make("animationTimingFunction");
-        make("backfaceVisibility");
-        make("background");
-        make("backgroundAttachment");
-        make("backgroundBlendMode");
-        make("backgroundClip");
-        make("backgroundColor");
-        make("backgroundImage");
-        make("backgroundOrigin");
-        make("backgroundPosition");
-        make("backgroundPositionX");
-        make("backgroundPositionY");
-        make("backgroundRepeat");
-        make("backgroundRepeatX");
-        make("backgroundRepeatY");
-        make("backgroundSize");
-        make("baselineShift");
-        make("blockSize");
-        make("border");
-        make("borderBlockEnd");
-        make("borderBlockEndColor");
-        make("borderBlockEndStyle");
-        make("borderBlockEndWidth");
-        make("borderBlockStart");
-        make("borderBlockStartColor");
-        make("borderBlockStartStyle");
-        make("borderBlockStartWidth");
-        make("borderBottom");
-        make("borderBottomColor");
-        make("borderBottomLeftRadius");
-        make("borderBottomRightRadius");
-        make("borderBottomStyle");
-        make("borderBottomWidth");
-        make("borderCollapse");
-        make("borderColor");
-        make("borderImage");
-        make("borderImageOutset");
-        make("borderImageRepeat");
-        make("borderImageSlice");
-        make("borderImageSource");
-        make("borderImageWidth");
-        make("borderInlineEnd");
-        make("borderInlineEndColor");
-        make("borderInlineEndStyle");
-        make("borderInlineEndWidth");
-        make("borderInlineStart");
-        make("borderInlineStartColor");
-        make("borderInlineStartStyle");
-        make("borderInlineStartWidth");
-        make("borderLeft");
-        make("borderLeftColor");
-        make("borderLeftStyle");
-        make("borderLeftWidth");
-        make("borderRadius");
-        make("borderRight");
-        make("borderRightColor");
-        make("borderRightStyle");
-        make("borderRightWidth");
-        make("borderSpacing");
-        make("borderStyle");
-        make("borderTop");
-        make("borderTopColor");
-        make("borderTopLeftRadius");
-        make("borderTopRightRadius");
-        make("borderTopStyle");
-        make("borderTopWidth");
-        make("borderWidth");
-        make("bottom");
-        make("boxShadow");
-        make("boxSizing");
-        make("breakAfter");
-        make("breakBefore");
-        make("breakInside");
-        make("bufferedRendering");
-        make("captionSide");
-        make("caretColor");
-        make("clear");
-        make("clip");
-        make("clipPath");
-        make("clipRule");
-        make("color");
-        make("colorInterpolation");
-        make("colorInterpolationFilters");
-        make("colorRendering");
-        make("columnCount");
-        make("columnFill");
-        make("columnGap");
-        make("columnRule");
-        make("columnRuleColor");
-        make("columnRuleStyle");
-        make("columnRuleWidth");
-        make("columnSpan");
-        make("columnWidth");
-        make("columns");
-        make("contain");
-        make("content");
-        make("counterIncrement");
-        make("counterReset");
-        make("cursor");
-        make("cx");
-        make("cy");
-        make("d");
-        make("direction");
-        make("display");
-        make("dominantBaseline");
-        make("emptyCells");
-        make("fill");
-        make("fillOpacity");
-        make("fillRule");
-        make("filter");
-        make("flex");
-        make("flexBasis");
-        make("flexDirection");
-        make("flexFlow");
-        make("flexGrow");
-        make("flexShrink");
-        make("flexWrap");
-        make("float");
-        make("floodColor");
-        make("floodOpacity");
-        make("font");
-        make("fontDisplay");
-        make("fontFamily");
-        make("fontFeatureSettings");
-        make("fontKerning");
-        make("fontSize");
-        make("fontStretch");
-        make("fontStyle");
-        make("fontVariant");
-        make("fontVariantCaps");
-        make("fontVariantEastAsian");
-        make("fontVariantLigatures");
-        make("fontVariantNumeric");
-        make("fontVariationSettings");
-        make("fontWeight");
-        make("gap");
-        make("grid");
-        make("gridArea");
-        make("gridAutoColumns");
-        make("gridAutoFlow");
-        make("gridAutoRows");
-        make("gridColumn");
-        make("gridColumnEnd");
-        make("gridColumnGap");
-        make("gridColumnStart");
-        make("gridGap");
-        make("gridRow");
-        make("gridRowEnd");
-        make("gridRowGap");
-        make("gridRowStart");
-        make("gridTemplate");
-        make("gridTemplateAreas");
-        make("gridTemplateColumns");
-        make("gridTemplateRows");
-        make("height");
-        make("hyphens");
-        make("imageRendering");
-        make("inlineSize");
-        make("isolation");
-        make("justifyContent");
-        make("justifyItems");
-        make("justifySelf");
-        make("left");
-        make("letterSpacing");
-        make("lightingColor");
-        make("lineBreak");
-        make("lineHeight");
-        make("listStyle");
-        make("listStyleImage");
-        make("listStylePosition");
-        make("listStyleType");
-        make("margin");
-        make("marginBlockEnd");
-        make("marginBlockStart");
-        make("marginBottom");
-        make("marginInlineEnd");
-        make("marginInlineStart");
-        make("marginLeft");
-        make("marginRight");
-        make("marginTop");
-        make("marker");
-        make("markerEnd");
-        make("markerMid");
-        make("markerStart");
-        make("mask");
-        make("maskType");
-        make("maxBlockSize");
-        make("maxHeight");
-        make("maxInlineSize");
-        make("maxWidth");
-        make("maxZoom");
-        make("minBlockSize");
-        make("minHeight");
-        make("minInlineSize");
-        make("minWidth");
-        make("minZoom");
-        make("mixBlendMode");
-        make("objectFit");
-        make("objectPosition");
-        make("offset");
-        make("offsetDistance");
-        make("offsetPath");
-        make("offsetRotate");
-        make("opacity");
-        make("order");
-        make("orientation");
-        make("orphans");
-        make("outline");
-        make("outlineColor");
-        make("outlineOffset");
-        make("outlineStyle");
-        make("outlineWidth");
-        make("overflow");
-        make("overflowAnchor");
-        make("overflowWrap");
-        make("overflowX");
-        make("overflowY");
-        make("overscrollBehavior");
-        make("overscrollBehaviorX");
-        make("overscrollBehaviorY");
-        make("padding");
-        make("paddingBlockEnd");
-        make("paddingBlockStart");
-        make("paddingBottom");
-        make("paddingInlineEnd");
-        make("paddingInlineStart");
-        make("paddingLeft");
-        make("paddingRight");
-        make("paddingTop");
-        make("page");
-        make("pageBreakAfter");
-        make("pageBreakBefore");
-        make("pageBreakInside");
-        make("paintOrder");
-        make("perspective");
-        make("perspectiveOrigin");
-        make("placeContent");
-        make("placeItems");
-        make("placeSelf");
-        make("pointerEvents");
-        make("position");
-        make("quotes");
-        make("r");
-        make("resize");
-        make("right");
-        make("rowGap");
-        make("rx");
-        make("ry");
-        make("scrollBehavior");
-        make("scrollMargin");
-        make("scrollMarginBlock");
-        make("scrollMarginBlockEnd");
-        make("scrollMarginBlockStart");
-        make("scrollMarginBottom");
-        make("scrollMarginInline");
-        make("scrollMarginInlineEnd");
-        make("scrollMarginInlineStart");
-        make("scrollMarginLeft");
-        make("scrollMarginRight");
-        make("scrollMarginTop");
-        make("scrollPadding");
-        make("scrollPaddingBlock");
-        make("scrollPaddingBlockEnd");
-        make("scrollPaddingBlockStart");
-        make("scrollPaddingBottom");
-        make("scrollPaddingInline");
-        make("scrollPaddingInlineEnd");
-        make("scrollPaddingInlineStart");
-        make("scrollPaddingLeft");
-        make("scrollPaddingRight");
-        make("scrollPaddingTop");
-        make("scrollSnapAlign");
-        make("scrollSnapStop");
-        make("scrollSnapType");
-        make("shapeImageThreshold");
-        make("shapeMargin");
-        make("shapeOutside");
-        make("shapeRendering");
-        make("size");
-        make("speak");
-        make("src");
-        make("stopColor");
-        make("stopOpacity");
-        make("stroke");
-        make("strokeDasharray");
-        make("strokeDashoffset");
-        make("strokeLinecap");
-        make("strokeLinejoin");
-        make("strokeMiterlimit");
-        make("strokeOpacity");
-        make("strokeWidth");
-        make("tabSize");
-        make("tableLayout");
-        make("textAlign");
-        make("textAlignLast");
-        make("textAnchor");
-        make("textCombineUpright");
-        make("textDecoration");
-        make("textDecorationColor");
-        make("textDecorationLine");
-        make("textDecorationSkipInk");
-        make("textDecorationStyle");
-        make("textIndent");
-        make("textOrientation");
-        make("textOverflow");
-        make("textRendering");
-        make("textShadow");
-        make("textSizeAdjust");
-        make("textTransform");
-        make("textUnderlinePosition");
-        make("top");
-        make("touchAction");
-        make("transform");
-        make("transformBox");
-        make("transformOrigin");
-        make("transformStyle");
-        make("transition");
-        make("transitionDelay");
-        make("transitionDuration");
-        make("transitionProperty");
-        make("transitionTimingFunction");
-        make("unicodeBidi");
-        make("unicodeRange");
-        make("userSelect");
-        make("userZoom");
-        make("vectorEffect");
-        make("verticalAlign");
-        make("visibility");
-        make("webkitAlignContent");
-        make("webkitAlignItems");
-        make("webkitAlignSelf");
-        make("webkitAnimation");
-        make("webkitAnimationDelay");
-        make("webkitAnimationDirection");
-        make("webkitAnimationDuration");
-        make("webkitAnimationFillMode");
-        make("webkitAnimationIterationCount");
-        make("webkitAnimationName");
-        make("webkitAnimationPlayState");
-        make("webkitAnimationTimingFunction");
-        make("webkitAppRegion");
-        make("webkitAppearance");
-        make("webkitBackfaceVisibility");
-        make("webkitBackgroundClip");
-        make("webkitBackgroundOrigin");
-        make("webkitBackgroundSize");
-        make("webkitBorderAfter");
-        make("webkitBorderAfterColor");
-        make("webkitBorderAfterStyle");
-        make("webkitBorderAfterWidth");
-        make("webkitBorderBefore");
-        make("webkitBorderBeforeColor");
-        make("webkitBorderBeforeStyle");
-        make("webkitBorderBeforeWidth");
-        make("webkitBorderBottomLeftRadius");
-        make("webkitBorderBottomRightRadius");
-        make("webkitBorderEnd");
-        make("webkitBorderEndColor");
-        make("webkitBorderEndStyle");
-        make("webkitBorderEndWidth");
-        make("webkitBorderHorizontalSpacing");
-        make("webkitBorderImage");
-        make("webkitBorderRadius");
-        make("webkitBorderStart");
-        make("webkitBorderStartColor");
-        make("webkitBorderStartStyle");
-        make("webkitBorderStartWidth");
-        make("webkitBorderTopLeftRadius");
-        make("webkitBorderTopRightRadius");
-        make("webkitBorderVerticalSpacing");
-        make("webkitBoxAlign");
-        make("webkitBoxDecorationBreak");
-        make("webkitBoxDirection");
-        make("webkitBoxFlex");
-        make("webkitBoxOrdinalGroup");
-        make("webkitBoxOrient");
-        make("webkitBoxPack");
-        make("webkitBoxReflect");
-        make("webkitBoxShadow");
-        make("webkitBoxSizing");
-        make("webkitClipPath");
-        make("webkitColumnBreakAfter");
-        make("webkitColumnBreakBefore");
-        make("webkitColumnBreakInside");
-        make("webkitColumnCount");
-        make("webkitColumnGap");
-        make("webkitColumnRule");
-        make("webkitColumnRuleColor");
-        make("webkitColumnRuleStyle");
-        make("webkitColumnRuleWidth");
-        make("webkitColumnSpan");
-        make("webkitColumnWidth");
-        make("webkitColumns");
-        make("webkitFilter");
-        make("webkitFlex");
-        make("webkitFlexBasis");
-        make("webkitFlexDirection");
-        make("webkitFlexFlow");
-        make("webkitFlexGrow");
-        make("webkitFlexShrink");
-        make("webkitFlexWrap");
-        make("webkitFontFeatureSettings");
-        make("webkitFontSizeDelta");
-        make("webkitFontSmoothing");
-        make("webkitHighlight");
-        make("webkitHyphenateCharacter");
-        make("webkitJustifyContent");
-        make("webkitLineBreak");
-        make("webkitLineClamp");
-        make("webkitLocale");
-        make("webkitLogicalHeight");
-        make("webkitLogicalWidth");
-        make("webkitMarginAfter");
-        make("webkitMarginAfterCollapse");
-        make("webkitMarginBefore");
-        make("webkitMarginBeforeCollapse");
-        make("webkitMarginBottomCollapse");
-        make("webkitMarginCollapse");
-        make("webkitMarginEnd");
-        make("webkitMarginStart");
-        make("webkitMarginTopCollapse");
-        make("webkitMask");
-        make("webkitMaskBoxImage");
-        make("webkitMaskBoxImageOutset");
-        make("webkitMaskBoxImageRepeat");
-        make("webkitMaskBoxImageSlice");
-        make("webkitMaskBoxImageSource");
-        make("webkitMaskBoxImageWidth");
-        make("webkitMaskClip");
-        make("webkitMaskComposite");
-        make("webkitMaskImage");
-        make("webkitMaskOrigin");
-        make("webkitMaskPosition");
-        make("webkitMaskPositionX");
-        make("webkitMaskPositionY");
-        make("webkitMaskRepeat");
-        make("webkitMaskRepeatX");
-        make("webkitMaskRepeatY");
-        make("webkitMaskSize");
-        make("webkitMaxLogicalHeight");
-        make("webkitMaxLogicalWidth");
-        make("webkitMinLogicalHeight");
-        make("webkitMinLogicalWidth");
-        make("webkitOpacity");
-        make("webkitOrder");
-        make("webkitPaddingAfter");
-        make("webkitPaddingBefore");
-        make("webkitPaddingEnd");
-        make("webkitPaddingStart");
-        make("webkitPerspective");
-        make("webkitPerspectiveOrigin");
-        make("webkitPerspectiveOriginX");
-        make("webkitPerspectiveOriginY");
-        make("webkitPrintColorAdjust");
-        make("webkitRtlOrdering");
-        make("webkitRubyPosition");
-        make("webkitShapeImageThreshold");
-        make("webkitShapeMargin");
-        make("webkitShapeOutside");
-        make("webkitTapHighlightColor");
-        make("webkitTextCombine");
-        make("webkitTextDecorationsInEffect");
-        make("webkitTextEmphasis");
-        make("webkitTextEmphasisColor");
-        make("webkitTextEmphasisPosition");
-        make("webkitTextEmphasisStyle");
-        make("webkitTextFillColor");
-        make("webkitTextOrientation");
-        make("webkitTextSecurity");
-        make("webkitTextSizeAdjust");
-        make("webkitTextStroke");
-        make("webkitTextStrokeColor");
-        make("webkitTextStrokeWidth");
-        make("webkitTransform");
-        make("webkitTransformOrigin");
-        make("webkitTransformOriginX");
-        make("webkitTransformOriginY");
-        make("webkitTransformOriginZ");
-        make("webkitTransformStyle");
-        make("webkitTransition");
-        make("webkitTransitionDelay");
-        make("webkitTransitionDuration");
-        make("webkitTransitionProperty");
-        make("webkitTransitionTimingFunction");
-        make("webkitUserDrag");
-        make("webkitUserModify");
-        make("webkitUserSelect");
-        make("webkitWritingMode");
-        make("whiteSpace");
-        make("widows");
-        make("width");
-        make("willChange");
-        make("wordBreak");
-        make("wordSpacing");
-        make("wordWrap");
-        make("writingMode");
-        make("x");
-        make("y");
-        make("zIndex");
-        make("zoom");
+        make("alignContent", true);
+        make("alignItems", true);
+        make("alignSelf", true);
+        make("alignmentBaseline", false);
+        make("all", false);
+        make("animation", true);
+        make("animationDelay", true);
+        make("animationDirection", true);
+        make("animationDuration", true);
+        make("animationFillMode", true);
+        make("animationIterationCount", true);
+        make("animationName", true);
+        make("animationPlayState", true);
+        make("animationTimingFunction", true);
+        make("backfaceVisibility", true);
+        make("background", false);
+        make("backgroundAttachment", false);
+        make("backgroundBlendMode", false);
+        make("backgroundClip", true);
+        make("backgroundColor", false);
+        make("backgroundImage", false);
+        make("backgroundOrigin", true);
+        make("backgroundPosition", false);
+        make("backgroundPositionX", false);
+        make("backgroundPositionY", false);
+        make("backgroundRepeat", false);
+        make("backgroundRepeatX", false);
+        make("backgroundRepeatY", false);
+        make("backgroundSize", true);
+        make("baselineShift", false);
+        make("blockSize", false);
+        make("border", false);
+        make("borderBlockEnd", false);
+        make("borderBlockEndColor", false);
+        make("borderBlockEndStyle", false);
+        make("borderBlockEndWidth", false);
+        make("borderBlockStart", false);
+        make("borderBlockStartColor", false);
+        make("borderBlockStartStyle", false);
+        make("borderBlockStartWidth", false);
+        make("borderBottom", false);
+        make("borderBottomColor", false);
+        make("borderBottomLeftRadius", true);
+        make("borderBottomRightRadius", true);
+        make("borderBottomStyle", false);
+        make("borderBottomWidth", false);
+        make("borderCollapse", false);
+        make("borderColor", false);
+        make("borderImage", true);
+        make("borderImageOutset", false);
+        make("borderImageRepeat", false);
+        make("borderImageSlice", false);
+        make("borderImageSource", false);
+        make("borderImageWidth", false);
+        make("borderInlineEnd", false);
+        make("borderInlineEndColor", false);
+        make("borderInlineEndStyle", false);
+        make("borderInlineEndWidth", false);
+        make("borderInlineStart", false);
+        make("borderInlineStartColor", false);
+        make("borderInlineStartStyle", false);
+        make("borderInlineStartWidth", false);
+        make("borderLeft", false);
+        make("borderLeftColor", false);
+        make("borderLeftStyle", false);
+        make("borderLeftWidth", false);
+        make("borderRadius", true);
+        make("borderRight", false);
+        make("borderRightColor", false);
+        make("borderRightStyle", false);
+        make("borderRightWidth", false);
+        make("borderSpacing", false);
+        make("borderStyle", false);
+        make("borderTop", false);
+        make("borderTopColor", false);
+        make("borderTopLeftRadius", true);
+        make("borderTopRightRadius", true);
+        make("borderTopStyle", false);
+        make("borderTopWidth", false);
+        make("borderWidth", false);
+        make("bottom", false);
+        make("boxShadow", true);
+        make("boxSizing", true);
+        make("breakAfter", false);
+        make("breakBefore", false);
+        make("breakInside", false);
+        make("bufferedRendering", false);
+        make("captionSide", false);
+        make("caretColor", false);
+        make("clear", false);
+        make("clip", false);
+        make("clipPath", true);
+        make("clipRule", false);
+        make("color", false);
+        make("colorInterpolation", false);
+        make("colorInterpolationFilters", false);
+        make("colorRendering", false);
+        make("columnCount", true);
+        make("columnFill", false);
+        make("columnGap", true);
+        make("columnRule", true);
+        make("columnRuleColor", true);
+        make("columnRuleStyle", true);
+        make("columnRuleWidth", true);
+        make("columnSpan", true);
+        make("columnWidth", true);
+        make("columns", true);
+        make("contain", false);
+        make("content", false);
+        make("counterIncrement", false);
+        make("counterReset", false);
+        make("cursor", false);
+        make("cx", false);
+        make("cy", false);
+        make("d", false);
+        make("direction", false);
+        make("display", false);
+        make("dominantBaseline", false);
+        make("emptyCells", false);
+        make("fill", false);
+        make("fillOpacity", false);
+        make("fillRule", false);
+        make("filter", true);
+        make("flex", true);
+        make("flexBasis", true);
+        make("flexDirection", true);
+        make("flexFlow", true);
+        make("flexGrow", true);
+        make("flexShrink", true);
+        make("flexWrap", true);
+        make("float", false);
+        make("floodColor", false);
+        make("floodOpacity", false);
+        make("font", false);
+        make("fontDisplay", false);
+        make("fontFamily", false);
+        make("fontFeatureSettings", true);
+        make("fontKerning", false);
+        make("fontSize", false);
+        make("fontStretch", false);
+        make("fontStyle", false);
+        make("fontVariant", false);
+        make("fontVariantCaps", false);
+        make("fontVariantEastAsian", false);
+        make("fontVariantLigatures", false);
+        make("fontVariantNumeric", false);
+        make("fontVariationSettings", false);
+        make("fontWeight", false);
+        make("gap", false);
+        make("grid", false);
+        make("gridArea", false);
+        make("gridAutoColumns", false);
+        make("gridAutoFlow", false);
+        make("gridAutoRows", false);
+        make("gridColumn", false);
+        make("gridColumnEnd", false);
+        make("gridColumnGap", false);
+        make("gridColumnStart", false);
+        make("gridGap", false);
+        make("gridRow", false);
+        make("gridRowEnd", false);
+        make("gridRowGap", false);
+        make("gridRowStart", false);
+        make("gridTemplate", false);
+        make("gridTemplateAreas", false);
+        make("gridTemplateColumns", false);
+        make("gridTemplateRows", false);
+        make("height", false);
+        make("hyphens", false);
+        make("imageRendering", false);
+        make("inlineSize", false);
+        make("isolation", false);
+        make("justifyContent", true);
+        make("justifyItems", false);
+        make("justifySelf", false);
+        make("left", false);
+        make("letterSpacing", false);
+        make("lightingColor", false);
+        make("lineBreak", true);
+        make("lineHeight", false);
+        make("listStyle", false);
+        make("listStyleImage", false);
+        make("listStylePosition", false);
+        make("listStyleType", false);
+        make("margin", false);
+        make("marginBlockEnd", false);
+        make("marginBlockStart", false);
+        make("marginBottom", false);
+        make("marginInlineEnd", false);
+        make("marginInlineStart", false);
+        make("marginLeft", false);
+        make("marginRight", false);
+        make("marginTop", false);
+        make("marker", false);
+        make("markerEnd", false);
+        make("markerMid", false);
+        make("markerStart", false);
+        make("mask", true);
+        make("maskType", false);
+        make("maxBlockSize", false);
+        make("maxHeight", false);
+        make("maxInlineSize", false);
+        make("maxWidth", false);
+        make("maxZoom", false);
+        make("minBlockSize", false);
+        make("minHeight", false);
+        make("minInlineSize", false);
+        make("minWidth", false);
+        make("minZoom", false);
+        make("mixBlendMode", false);
+        make("objectFit", false);
+        make("objectPosition", false);
+        make("offset", false);
+        make("offsetDistance", false);
+        make("offsetPath", false);
+        make("offsetRotate", false);
+        make("opacity", true);
+        make("order", true);
+        make("orientation", false);
+        make("orphans", false);
+        make("outline", false);
+        make("outlineColor", false);
+        make("outlineOffset", false);
+        make("outlineStyle", false);
+        make("outlineWidth", false);
+        make("overflow", false);
+        make("overflowAnchor", false);
+        make("overflowWrap", false);
+        make("overflowX", false);
+        make("overflowY", false);
+        make("overscrollBehavior", false);
+        make("overscrollBehaviorX", false);
+        make("overscrollBehaviorY", false);
+        make("padding", false);
+        make("paddingBlockEnd", false);
+        make("paddingBlockStart", false);
+        make("paddingBottom", false);
+        make("paddingInlineEnd", false);
+        make("paddingInlineStart", false);
+        make("paddingLeft", false);
+        make("paddingRight", false);
+        make("paddingTop", false);
+        make("page", false);
+        make("pageBreakAfter", false);
+        make("pageBreakBefore", false);
+        make("pageBreakInside", false);
+        make("paintOrder", false);
+        make("perspective", true);
+        make("perspectiveOrigin", true);
+        make("placeContent", false);
+        make("placeItems", false);
+        make("placeSelf", false);
+        make("pointerEvents", false);
+        make("position", false);
+        make("quotes", false);
+        make("r", false);
+        make("resize", false);
+        make("right", false);
+        make("rowGap", false);
+        make("rx", false);
+        make("ry", false);
+        make("scrollBehavior", false);
+        make("scrollMargin", false);
+        make("scrollMarginBlock", false);
+        make("scrollMarginBlockEnd", false);
+        make("scrollMarginBlockStart", false);
+        make("scrollMarginBottom", false);
+        make("scrollMarginInline", false);
+        make("scrollMarginInlineEnd", false);
+        make("scrollMarginInlineStart", false);
+        make("scrollMarginLeft", false);
+        make("scrollMarginRight", false);
+        make("scrollMarginTop", false);
+        make("scrollPadding", false);
+        make("scrollPaddingBlock", false);
+        make("scrollPaddingBlockEnd", false);
+        make("scrollPaddingBlockStart", false);
+        make("scrollPaddingBottom", false);
+        make("scrollPaddingInline", false);
+        make("scrollPaddingInlineEnd", false);
+        make("scrollPaddingInlineStart", false);
+        make("scrollPaddingLeft", false);
+        make("scrollPaddingRight", false);
+        make("scrollPaddingTop", false);
+        make("scrollSnapAlign", false);
+        make("scrollSnapStop", false);
+        make("scrollSnapType", false);
+        make("shapeImageThreshold", true);
+        make("shapeMargin", true);
+        make("shapeOutside", true);
+        make("shapeRendering", false);
+        make("size", false);
+        make("speak", false);
+        make("src", false);
+        make("stopColor", false);
+        make("stopOpacity", false);
+        make("stroke", false);
+        make("strokeDasharray", false);
+        make("strokeDashoffset", false);
+        make("strokeLinecap", false);
+        make("strokeLinejoin", false);
+        make("strokeMiterlimit", false);
+        make("strokeOpacity", false);
+        make("strokeWidth", false);
+        make("tabSize", false);
+        make("tableLayout", false);
+        make("textAlign", false);
+        make("textAlignLast", false);
+        make("textAnchor", false);
+        make("textCombineUpright", false);
+        make("textDecoration", false);
+        make("textDecorationColor", false);
+        make("textDecorationLine", false);
+        make("textDecorationSkipInk", false);
+        make("textDecorationStyle", false);
+        make("textIndent", false);
+        make("textOrientation", true);
+        make("textOverflow", false);
+        make("textRendering", false);
+        make("textShadow", false);
+        make("textSizeAdjust", true);
+        make("textTransform", false);
+        make("textUnderlinePosition", false);
+        make("top", false);
+        make("touchAction", false);
+        make("transform", true);
+        make("transformBox", false);
+        make("transformOrigin", true);
+        make("transformStyle", true);
+        make("transition", true);
+        make("transitionDelay", true);
+        make("transitionDuration", true);
+        make("transitionProperty", true);
+        make("transitionTimingFunction", true);
+        make("unicodeBidi", false);
+        make("unicodeRange", false);
+        make("userSelect", true);
+        make("userZoom", false);
+        make("vectorEffect", false);
+        make("verticalAlign", false);
+        make("visibility", false);
+        make("appRegion", true);
+        make("appearance", true);
+        make("borderAfter", true);
+        make("borderAfterColor", true);
+        make("borderAfterStyle", true);
+        make("borderAfterWidth", true);
+        make("borderBefore", true);
+        make("borderBeforeColor", true);
+        make("borderBeforeStyle", true);
+        make("borderBeforeWidth", true);
+        make("borderEnd", true);
+        make("borderEndColor", true);
+        make("borderEndStyle", true);
+        make("borderEndWidth", true);
+        make("borderHorizontalSpacing", true);
+        make("borderStart", true);
+        make("borderStartColor", true);
+        make("borderStartStyle", true);
+        make("borderStartWidth", true);
+        make("borderVerticalSpacing", true);
+        make("boxAlign", true);
+        make("boxDecorationBreak", true);
+        make("boxDirection", true);
+        make("boxFlex", true);
+        make("boxOrdinalGroup", true);
+        make("boxOrient", true);
+        make("boxPack", true);
+        make("boxReflect", true);
+        make("columnBreakAfter", true);
+        make("columnBreakBefore", true);
+        make("columnBreakInside", true);
+        make("fontSizeDelta", true);
+        make("fontSmoothing", true);
+        make("highlight", true);
+        make("hyphenateCharacter", true);
+        make("lineClamp", true);
+        make("locale", true);
+        make("logicalHeight", true);
+        make("logicalWidth", true);
+        make("marginAfter", true);
+        make("marginAfterCollapse", true);
+        make("marginBefore", true);
+        make("marginBeforeCollapse", true);
+        make("marginBottomCollapse", true);
+        make("marginCollapse", true);
+        make("marginEnd", true);
+        make("marginStart", true);
+        make("marginTopCollapse", true);
+        make("maskBoxImage", true);
+        make("maskBoxImageOutset", true);
+        make("maskBoxImageRepeat", true);
+        make("maskBoxImageSlice", true);
+        make("maskBoxImageSource", true);
+        make("maskBoxImageWidth", true);
+        make("maskClip", true);
+        make("maskComposite", true);
+        make("maskImage", true);
+        make("maskOrigin", true);
+        make("maskPosition", true);
+        make("maskPositionX", true);
+        make("maskPositionY", true);
+        make("maskRepeat", true);
+        make("maskRepeatX", true);
+        make("maskRepeatY", true);
+        make("maskSize", true);
+        make("maxLogicalHeight", true);
+        make("maxLogicalWidth", true);
+        make("minLogicalHeight", true);
+        make("minLogicalWidth", true);
+        make("paddingAfter", true);
+        make("paddingBefore", true);
+        make("paddingEnd", true);
+        make("paddingStart", true);
+        make("perspectiveOriginX", true);
+        make("perspectiveOriginY", true);
+        make("printColorAdjust", true);
+        make("rtlOrdering", true);
+        make("rubyPosition", true);
+        make("tapHighlightColor", true);
+        make("textCombine", true);
+        make("textDecorationsInEffect", true);
+        make("textEmphasis", true);
+        make("textEmphasisColor", true);
+        make("textEmphasisPosition", true);
+        make("textEmphasisStyle", true);
+        make("textFillColor", true);
+        make("textSecurity", true);
+        make("textStroke", true);
+        make("textStrokeColor", true);
+        make("textStrokeWidth", true);
+        make("transformOriginX", true);
+        make("transformOriginY", true);
+        make("transformOriginZ", true);
+        make("userDrag", true);
+        make("userModify", true);
+        make("writingMode", true);
+        make("whiteSpace", false);
+        make("widows", false);
+        make("width", false);
+        make("willChange", false);
+        make("wordBreak", false);
+        make("wordSpacing", false);
+        make("wordWrap", false);
+        make("x", false);
+        make("y", false);
+        make("zIndex", false);
+        make("zoom", false);
     }
 
 })();
